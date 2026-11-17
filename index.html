@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IoT 设备识别数据集导航</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230f766e'/%3E%3Ccircle cx='7' cy='12' r='2' fill='white'/%3E%3Ccircle cx='17' cy='7' r='2' fill='white'/%3E%3Ccircle cx='17' cy='17' r='2' fill='white'/%3E%3Cpath d='M8.5 11 L15.5 7.8 M8.5 13 L15.5 16.2' stroke='white' stroke-width='1.4'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#eef1f5;
+    --card:#ffffff;
+    --ink:#16202b;
+    --muted:#5b6775;
+    --line:#d8dee6;
+    --accent:#0f766e;
+    --accent-soft:#ccfbf1;
+    --green:#15803d; --green-bg:#dcfce7;
+    --amber:#b45309; --amber-bg:#fef3c7;
+    --slate:#475569; --slate-bg:#e2e8f0;
+    --orange:#c2410c; --orange-bg:#ffedd5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:32px 24px 48px;}
+  .mono{font-family:"Cascadia Code",Consolas,"Courier New",monospace;}
+
+  /* ===== 头部 ===== */
+  header.page-head{margin-bottom:26px;}
+  h1{font-size:30px;margin:0 0 8px;letter-spacing:.5px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 20px;max-width:760px;}
+  .stats{display:flex;flex-wrap:wrap;gap:12px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 16px;min-width:108px;}
+  .stat .num{font-size:24px;font-weight:700;}
+  .stat .lbl{font-size:12.5px;color:var(--muted);}
+
+  /* ===== 控制栏 ===== */
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:24px 0 22px;}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;}
+  .fbtn{
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+    padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;min-height:40px;
+  }
+  .fbtn:hover{border-color:var(--accent);}
+  .fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .searchbox{position:relative;}
+  .searchbox input{
+    border:1px solid var(--line);background:var(--card);border-radius:8px;
+    padding:10px 14px 10px 38px;font-size:16px;min-width:230px;min-height:40px;color:var(--ink);
+  }
+  .searchbox input:focus{outline:none;border-color:var(--accent);}
+  .searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);}
+
+  /* ===== 卡片网格 ===== */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:18px;display:flex;flex-direction:column;gap:12px;
+  }
+  .card:hover{border-color:var(--accent);}
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+  .b-main{background:var(--green-bg);color:var(--green);}
+  .b-supplement{background:var(--amber-bg);color:var(--amber);}
+  .b-pending{background:var(--orange-bg);color:var(--orange);}
+  .b-excluded{background:var(--slate-bg);color:var(--slate);}
+  .pcap-tag{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+  .p-yes{background:var(--accent-soft);color:var(--accent);}
+  .p-no{background:var(--slate-bg);color:var(--slate);}
+  .p-maybe{background:var(--orange-bg);color:var(--orange);}
+  .ds-name{font-size:16.5px;font-weight:700;margin:0;word-break:break-word;}
+  .fields{display:flex;flex-direction:column;gap:7px;font-size:13.5px;}
+  .field{display:flex;gap:8px;}
+  .field .k{color:var(--muted);flex:0 0 64px;}
+  .field .v{color:var(--ink);min-width:0;}
+  .note{font-size:13px;color:var(--muted);margin:0;border-top:1px solid var(--line);padding-top:11px;}
+  .src{margin-top:auto;}
+  .src a{
+    display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;
+    color:var(--accent);text-decoration:none;border:1px solid var(--line);
+    padding:8px 14px;border-radius:8px;min-height:38px;
+  }
+  .src a:hover{background:var(--accent-soft);border-color:var(--accent);}
+
+  .empty{display:none;text-align:center;color:var(--muted);padding:60px 0;font-size:15px;}
+
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);}
+
+  /* ===== 响应式 ===== */
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:600px){
+    .wrap{padding:24px 16px 40px;}
+    .grid{grid-template-columns:1fr;}
+    h1{font-size:25px;}
+    .controls{flex-direction:column;align-items:stretch;}
+    .searchbox input{width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>IoT 设备识别数据集导航</h1>
+    <p class="sub">面向“基于被动流量的物联网设备识别”课题，逐个核实数据集是否含 pcap、标签口径与设备类型。点击下方按钮可按可用性筛选，或直接搜索数据集名称。</p>
+    <div class="stats">
+      <div class="stat"><div class="num" id="st-total">0</div><div class="lbl">数据集总数</div></div>
+      <div class="stat"><div class="num" id="st-main">0</div><div class="lbl">主力可用</div></div>
+      <div class="stat"><div class="num" id="st-supp">0</div><div class="lbl">补充</div></div>
+      <div class="stat"><div class="num" id="st-pending">0</div><div class="lbl">待确认</div></div>
+      <div class="stat"><div class="num" id="st-excluded">0</div><div class="lbl">已排除</div></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filters" id="filters">
+      <button class="fbtn active" data-filter="all">全部</button>
+      <button class="fbtn" data-filter="main">主力可用</button>
+      <button class="fbtn" data-filter="supplement">补充</button>
+      <button class="fbtn" data-filter="pending">待确认</button>
+      <button class="fbtn" data-filter="excluded">已排除</button>
+    </div>
+    <div class="searchbox">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b6775" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="search" placeholder="搜索数据集名称…">
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">没有符合条件的数据集，换个关键词或筛选试试。</div>
+
+  <footer>
+    核实口径：“是否含 pcap / 标签定义 / 真实或模拟”均来自数据集页面写明的文字；“适不适合”为基于课题的分析。标注“待确认”的为页面未写明或文件需登录、未能亲眼验证。数据核实日期：2026-11-16。
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   数据集清单（以后新增：照着下面格式在数组里加一条即可）
+   status: main 主力 / supplement 补充 / pending 待确认 / excluded 排除
+   pcap:   有 / 无 / 待验证
+   ========================================================= */
+const RAW_DATA = [
+  {name:"CIC IoT Dataset 2022", status:"main", pcap:"有",
+   label:"设备标签（Device List.xlsx）",
+   devices:"40 类设备：摄像头、音箱、灯泡、门锁等",
+   note:"1-Power 为单设备隔离抓包、按设备分文件夹，已亲眼确认，最可靠，当前主力。",
+   url:"https://www.unb.ca/cic/datasets/iotdataset-2022.html"},
+  {name:"Edge-IIoTset", status:"main", pcap:"有",
+   label:"传感器类别 + 攻击标签",
+   devices:"10 类传感器（含 Modbus/MQTT，工控方向）",
+   note:"正常流量按 10 类传感器各自分包，Kaggle 免费镜像，补工控方向。",
+   url:"https://www.kaggle.com/datasets/mohamedamineferrag/edgeiiotset-cyber-security-dataset-of-iot-iiot"},
+  {name:"Aposemat IoT-23", status:"supplement", pcap:"有",
+   label:"行为标签（Benign/C&C/DDoS），设备名取自文件名",
+   devices:"3 个良性设备：HUE 灯、Echo 音箱、Somfy 门锁",
+   note:"23 场景中 20 个恶意场景跳过，仅 3 个良性真实设备可用。",
+   url:"https://www.stratosphereips.org/datasets-iot23"},
+  {name:"IoT Network Intrusion Dataset", status:"supplement", pcap:"有",
+   label:"攻击类型；设备需用 MAC/IP 自行映射",
+   devices:"2 台：EZVIZ 摄像头、NUGU 音箱",
+   note:"42 个 pcap 已核实，仅 benign-dec.pcap 正常流量有用，且两设备混合。",
+   url:"https://ocslab.hksecurity.net/Datasets/iot-network-intrusion-dataset"},
+  {name:"Dataset of legitimate IoT data (VARIoT)", status:"pending", pcap:"待验证",
+   label:"页面写明设备类型丰富（待核实）",
+   devices:"语音助手、摄像头、打印机、灯泡、传感器",
+   note:"页面写有 pcap+csv，但 pcap 在需登录门户、无第三方镜像，暂未获取。",
+   url:"https://www.data.gouv.fr/en/datasets/dataset-of-legitimate-iot-data/"},
+  {name:"CIC IoT Dataset 2023", status:"excluded", pcap:"有",
+   label:"攻击类型",
+   devices:"混合流量、无设备列",
+   note:"没有设备列、无法对应设备，做不了设备识别。",
+   url:"https://www.unb.ca/cic/datasets/iotdataset-2023.html"},
+  {name:"ToN-IoT", status:"excluded", pcap:"有",
+   label:"按 IP+时间戳标攻击",
+   devices:"传感器遥测为 .log/.csv",
+   note:"网络 pcap 属整个测试网混合流量、攻击标签，无设备标签。",
+   url:"https://research.unsw.edu.au/projects/toniot-datasets"},
+  {name:"MQTT-IoT-IDS2020", status:"excluded", pcap:"有",
+   label:"攻击类型",
+   devices:"12 个虚拟设备（页面写明 simulated）",
+   note:"模拟 MQTT 网络、混合流量、无设备标签，脚本也不支持 MQTT。",
+   url:"https://ieee-dataport.org/open-access/mqtt-iot-ids2020-mqtt-internet-things-intrusion-detection"},
+  {name:"UNSW-NB15", status:"excluded", pcap:"有",
+   label:"9 类攻击",
+   devices:"通用网络、非 IoT",
+   note:"工具合成、通用网络流量、无设备标签。",
+   url:"https://research.unsw.edu.au/projects/unsw-nb15-dataset"},
+  {name:"BoT-IoT", status:"excluded", pcap:"有",
+   label:"DDoS/DoS/扫描等攻击标签",
+   devices:"IoT 场景但混合流量",
+   note:"按攻击类别分、无设备标签。",
+   url:"https://research.unsw.edu.au/projects/bot-iot-dataset"},
+  {name:"N-BaIoT", status:"excluded", pcap:"无",
+   label:"异常/攻击",
+   devices:"9 个真实商用设备（按设备分文件夹）",
+   note:"全是提取好的特征 csv、无原始 pcap，不满足课题要求。",
+   url:"https://archive.ics.uci.edu/ml/datasets/detection_of_IoT_botnet_attacks_N_BaIoT"},
+  {name:"NIDS NetFlow 系列 (NF-* / CIC-ToN-IoT)", status:"excluded", pcap:"无",
+   label:"攻击类型",
+   devices:"NetFlow 流特征",
+   note:"名字带 NetFlow，是从 pcap 提取的流记录、非原始 pcap。",
+   url:"https://staff.itee.uq.edu.au/marius/NIDS_datasets/"},
+  {name:"BACS / KNX", status:"excluded", pcap:"有(pcapng)",
+   label:"正常/攻击",
+   devices:"楼宇自动化设备，KNX 总线、非 IP",
+   note:"KNX 无五元组、脚本不支持、无设备标签，IEEE 需订阅。",
+   url:"https://ieee-dataport.org/documents/dataset-bundle-building-automation-and-control-systems-security-analysis"},
+  {name:"X-IIoTID", status:"excluded", pcap:"无",
+   label:"三层攻击标签",
+   devices:"工控设备",
+   note:"Data Format 仅 csv、无 pcap。",
+   url:"https://ieee-dataport.org/documents/x-iiotid-connectivity-and-device-agnostic-intrusion-dataset-industrial-internet-things"},
+  {name:"WUSTL-IIoT-2021", status:"excluded", pcap:"无",
+   label:"攻击标签",
+   devices:"工控场景",
+   note:"页面明确仅 csv、无 pcap。",
+   url:"https://ieee-dataport.org/documents/wustl-iiot-2021"},
+  {name:"IoT Healthcare Security Dataset", status:"excluded", pcap:"无",
+   label:"攻击标签",
+   devices:"IoT-Flock 模拟的 ICU 设备",
+   note:"非真实硬件、仅 csv、无 pcap。",
+   url:"https://ieee-dataport.org/documents/iot-healthcare-security-dataset"},
+  {name:"TCP FIN Flood & Zbassocflood", status:"excluded", pcap:"有",
+   label:"DoS 攻击标签",
+   devices:"WiFi/ZigBee，无设备标签",
+   note:"攻击标签、无设备标签，且 Zenodo/IEEE 文件受限需申请。",
+   url:"https://zenodo.org/records/4431541"},
+  {name:"About IoT", status:"excluded", pcap:"无",
+   label:"无",
+   devices:"无（科普图片）",
+   note:"作者自述为 IoT 科普 jpeg 图，非数据集。",
+   url:"https://www.kaggle.com/datasets/mkthenaturelover/about-iotinternet-of-things"}
+];
+
+const STATUS_TEXT = {main:"主力", supplement:"补充", pending:"待确认", excluded:"已排除"};
+const state = {filter:"all", keyword:""};
+
+function pcapClass(p){
+  if(p==="有") return "p-yes";
+  if(p==="待验证") return "p-maybe";
+  return "p-no";
+}
+
+function render(){
+  const kw = state.keyword.trim().toLowerCase();
+  const list = RAW_DATA.filter(function(d){
+    const okFilter = state.filter==="all" ? true : d.status===state.filter;
+    const okKw = kw ? d.name.toLowerCase().indexOf(kw)>-1 : true;
+    return okFilter && okKw;
+  });
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = list.map(function(d){
+    return ''+
+    '<article class="card">'+
+      '<div class="card-top">'+
+        '<span class="badge b-'+d.status+'">'+STATUS_TEXT[d.status]+'</span>'+
+        '<span class="pcap-tag '+pcapClass(d.pcap)+'">pcap：'+d.pcap+'</span>'+
+      '</div>'+
+      '<h2 class="ds-name mono">'+d.name+'</h2>'+
+      '<div class="fields">'+
+        '<div class="field"><span class="k">标签</span><span class="v">'+d.label+'</span></div>'+
+        '<div class="field"><span class="k">设备类型</span><span class="v">'+d.devices+'</span></div>'+
+      '</div>'+
+      '<p class="note">'+d.note+'</p>'+
+      '<div class="src"><a href="'+d.url+'" target="_blank" rel="noopener">'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>'+
+        '打开数据源</a></div>'+
+    '</article>';
+  }).join("");
+
+  document.getElementById("empty").style.display = list.length ? "none" : "block";
+}
+
+function renderStats(){
+  const c = {main:0, supplement:0, pending:0, excluded:0};
+  RAW_DATA.forEach(function(d){ c[d.status]++; });
+  document.getElementById("st-total").textContent = RAW_DATA.length;
+  document.getElementById("st-main").textContent = c.main;
+  document.getElementById("st-supp").textContent = c.supplement;
+  document.getElementById("st-pending").textContent = c.pending;
+  document.getElementById("st-excluded").textContent = c.excluded;
+}
+
+document.getElementById("filters").addEventListener("click", function(e){
+  const btn = e.target.closest(".fbtn");
+  if(!btn) return;
+  document.querySelectorAll(".fbtn").forEach(function(b){b.classList.remove("active");});
+  btn.classList.add("active");
+  state.filter = btn.getAttribute("data-filter");
+  render();
+});
+document.getElementById("search").addEventListener("input", function(e){
+  state.keyword = e.target.value;
+  render();
+});
+
+renderStats();
+render();
+</script>
+</body>
+</html>
